@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="夕大人"><meta name="renderer" content="webkit"><meta name="copyright" content="夕大人"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>树的旋转 · Mr.Xi's Blog</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/fav.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.0.0"></head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/head.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">夕大人</div><div class="profile-signature">有术无道，止于术。</div><div class="friends"><div>FRIENDS</div><span><a href="//github.com/xi-sun" target="_black">friendA</a></span><span><a href="http://123.57.156.148/" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">Mr.Xi's Blog</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">树的旋转</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-edit"></i><span>2020-08-03</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="数据结构-学习"> 数据结构-学习</a></span></div><div class="post-intro-read"><span> Word count: <span class="post-count">810</span> | Reading time: <span class="post-count">3</span>min</span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1 id="1、定义及作用"><a href="#1、定义及作用" class="headerlink" title="1、定义及作用"></a>1、定义及作用</h1><p>所谓的树的旋转，其实就是树中某部分以某个结点为轴进行旋转，也可以说是改变某些结点的父子关系来达到旋转的效果。旋转作用是为了保证在进行AVL树和红黑树的结点增加和删除时，保证这两种树的平衡。</p>
+<h1 id="2、旋转的四种类型"><a href="#2、旋转的四种类型" class="headerlink" title="2、旋转的四种类型"></a>2、旋转的四种类型</h1><p>旋转的类型分为RR、LL、RL、LR。RR型进行左转，LL进行右转，RL型先进行右旋，再进行左旋，LR型先进行左旋，在进行右旋。为了更加直观的描述，下面直接用图片展示，<strong>注意：圆形代表结点，矩形框代表一个子树(可以没有),C结点可以有两个子树，这里用一个矩形框表示了</strong><br>1.RR型</p>
+<img src="/blog/xi06/RR.jpg" class title="RR型">
+<p>2.LL型</p>
+<img src="/blog/xi06/LL.jpg" class title="LL型">
+<p>3.RL型</p>
+<img src="/blog/xi06/RL.jpg" class title="RL型">
+<p>4.LR型</p>
+<img src="/blog/xi06/LR.jpg" class title="LR型">
+<h1 id="3、思路和代码"><a href="#3、思路和代码" class="headerlink" title="3、思路和代码"></a>3、思路和代码</h1><p>由于LL型旋转和RR型旋转正好相反，所以这里只有RR型的代码,思路相似。同理，RL型与LR型也是如此。<br>在说树的旋转的定义时，就说了旋转可以通过改变某些结点的父子关系来达到旋转的效果。<br>思路：在进行LL型旋转之前，B的父结点是A,B的左子树是2，所谓的LL型旋转，就是把2这棵子树变为A的右子树，A结点变成B结点的左结点。A结点原来也可能会有父结点(图中并未画出)，如果有，B结点就顶替原来A的位置。如果没有，B就是新的根。<strong>注意改变父子关系的先后顺序，避免结点或子树丢失</strong><br>代码：(结构体中除了左右结点的指针，还要加上一个父结点的指针)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tree</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> nValue;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tree</span> *<span class="title">pLeft</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tree</span> *<span class="title">pRight</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tree</span> *<span class="title">pFather</span>;</span></span><br><span class="line">&#125;BinaryTree;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//LL型</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RightRotate</span><span class="params">(BinaryTree **pTree)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(*pTree == <span class="literal">NULL</span> || (*pTree)-&gt;pLeft == <span class="literal">NULL</span>)<span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    BinaryTree *pNode = *pTree;</span><br><span class="line">    BinaryTree *pMark = pNode-&gt;pLeft;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//三个孩子关系</span></span><br><span class="line">    pNode-&gt;pLeft = pMark-&gt;pRight;</span><br><span class="line">    pMark-&gt;pRight = pNode;</span><br><span class="line">    <span class="keyword">if</span>(pNode-&gt;pFather != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(pNode == pNode-&gt;pFather-&gt;pLeft)</span><br><span class="line">        &#123;</span><br><span class="line">            pNode-&gt;pFather-&gt;pLeft = pMark;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            pNode-&gt;pFather-&gt;pRight = pMark;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//换根</span></span><br><span class="line">        *pTree = pMark;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//三个父亲关系</span></span><br><span class="line">    <span class="keyword">if</span>(pNode-&gt;pLeft != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        pNode-&gt;pLeft-&gt;pFather = pNode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pMark-&gt;pFather = pNode-&gt;pFather;</span><br><span class="line">    pNode-&gt;pFather = pMark;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">RR型旋转的代码</span><br><span class="line"><span class="comment">//RR型</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">LeftRotate</span><span class="params">(BinaryTree **pTree)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(*pTree == <span class="literal">NULL</span> || (*pTree)-&gt;pRight == <span class="literal">NULL</span>)<span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    BinaryTree *pNode = *pTree;</span><br><span class="line">    BinaryTree *pMark = pNode-&gt;pRight;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//三个孩子关系</span></span><br><span class="line">    pNode-&gt;pRight = pMark-&gt;pLeft;</span><br><span class="line">    pMark-&gt;pLeft = pNode;</span><br><span class="line">    <span class="keyword">if</span>(pNode-&gt;pFather != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(pNode == pNode-&gt;pFather-&gt;pLeft)</span><br><span class="line">        &#123;</span><br><span class="line">            pNode-&gt;pFather-&gt;pLeft = pMark;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            pNode-&gt;pFather-&gt;pRight = pMark;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//换根</span></span><br><span class="line">        *pTree = pMark;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//三个父亲关系</span></span><br><span class="line">    <span class="keyword">if</span>(pNode-&gt;pRight != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        pNode-&gt;pRight-&gt;pFather = pNode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pMark-&gt;pFather = pNode-&gt;pFather;</span><br><span class="line">    pNode-&gt;pFather = pMark;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>RL型：<br>从上面RL图也可以看出，RL型是先进行右旋，再进行左旋。不用额外写代码，在需要进行RL型旋转时，调用上面两个函数即可。<strong>要注意旋转的点是哪个</strong><br>LR型：<br>和RL类似，LR型先进行左旋，再进行右旋。同样不用额外写代码，在需要进行LR型旋转时，调用上面两个函数即可。<strong>也要注意旋转的点是哪个</strong></p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="https://xi-sun.github.io">夕大人</a></p><p> <span>Link:  </span><a href="https://xi-sun.github.io/blog/xi06.html">https://xi-sun.github.io/blog/xi06.html</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/blog/xi03.html" title="试试"><span>NextPost ></span><br><span class="nextTitle">试试</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1%E3%80%81%E5%AE%9A%E4%B9%89%E5%8F%8A%E4%BD%9C%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">1、定义及作用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81%E6%97%8B%E8%BD%AC%E7%9A%84%E5%9B%9B%E7%A7%8D%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">2、旋转的四种类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3%E3%80%81%E6%80%9D%E8%B7%AF%E5%92%8C%E4%BB%A3%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">3、思路和代码</span></a></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
