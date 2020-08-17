@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="夕大人"><meta name="renderer" content="webkit"><meta name="copyright" content="夕大人"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>快速排序 · Mr.Xi's Blog</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/fav.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.0.0"></head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/head.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">夕大人</div><div class="profile-signature">有术无道，止于术。</div><div class="friends"><div>FRIENDS</div><span><a href="//github.com/xi-sun" target="_black">friendA</a></span><span><a href="http://123.57.156.148/" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">Mr.Xi's Blog</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">快速排序</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-edit"></i><span>2020-08-17</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="算法学习"> 算法学习</a></span></div><div class="post-intro-read"><span> Word count: <span class="post-count">1.3k</span> | Reading time: <span class="post-count">4</span>min</span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1 id="快排思想"><a href="#快排思想" class="headerlink" title="快排思想"></a>快排思想</h1><p>快速排序，找一个值为枢轴。比枢轴大的数放在枢轴的右边，比枢轴小的数放到枢轴的左边。左右两部分重复上述操作，从而达到对数列排序的效果。这是一种分治的思想。</p>
+<h2 id="1、挖坑填补法"><a href="#1、挖坑填补法" class="headerlink" title="1、挖坑填补法"></a>1、挖坑填补法</h2><p>挖坑填补法就是把比枢轴的数放到小的放到左边，比枢轴大的放到右边的一种方法。</p>
+<h3 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h3><p>对于一个序列，最好选择的数是开始或者结束。在这里我们先把序列的第一个数当成是一个枢轴（<strong>枢轴的选择有很多种方法，这是最简单的一种，要注意的是枢轴选择的好坏对快排的速度有影响</strong>）。把选择的枢轴标记一下，原枢轴位置的数据就不再有意义。可以把它看成是一个“坑”，然后用两个指针(如果数组的话，可以是数组下标)指向剩余序列的开始和结束。指向结束的指针与标记的枢轴相比较，直到遇到比枢轴要小的数，把这个数放到“坑”里。（<strong>因为这里选择的枢轴是序列的第一个元素，所以放到这个“坑”里一定是比枢轴小的位置。如果是采用其他的选择枢轴的式，可以先将这个“坑”与第一个元素互换，是第一个元素变成“坑”</strong>）结束指针遇到的那个比枢轴要小的值就变成了新的“坑”，这个“坑”后面全是比枢轴要大的数。此时，移动开始指针，直到遇到第一个比比枢轴要大的数，将这个数放到“坑”里，这个数就变成了新的“坑”。接着在移动结束指针…如此循环，直至开始指针与结束指针指向同一个位置，那就是枢轴的位置，将枢轴放到此位置。现在的序列比枢轴小的全在枢轴的左边，比枢轴大的全在枢轴的右边。<br>使用挖坑填补法将序列分为两部分，再把这两部分按照同样的方法，继续分，直至序列有序。</p>
+<h3 id="代码："><a href="#代码：" class="headerlink" title="代码："></a>代码：</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">SeekPintle</span><span class="params">(<span class="keyword">int</span> arr[],<span class="keyword">int</span> l,<span class="keyword">int</span> r)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> mark = arr[l];<span class="comment">//标记枢轴</span></span><br><span class="line">    <span class="keyword">int</span> index = l;<span class="comment">//‘坑’的位置</span></span><br><span class="line">    <span class="keyword">while</span>(l&lt;r)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">while</span>(l&lt;r&amp;&amp;arr[r]&gt;=mark)<span class="comment">//结束指针向前移动，直至遇到第一个比枢轴小的数</span></span><br><span class="line">            r--;</span><br><span class="line">        <span class="comment">//放坑</span></span><br><span class="line">        <span class="keyword">if</span>(l&lt;r)</span><br><span class="line">        &#123;</span><br><span class="line">            arr[index]=arr[r];</span><br><span class="line">            index = r;<span class="comment">//改变坑位置</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(l&lt;r&amp;&amp;arr[l]&lt;=mark)<span class="comment">//开始指针向后移动，直至遇到比枢轴要大的数</span></span><br><span class="line">            l++;</span><br><span class="line">        <span class="keyword">if</span>(l&lt;r)</span><br><span class="line">        &#123;</span><br><span class="line">            arr[index]=arr[l];</span><br><span class="line">            index=l;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    arr[l]=mark;</span><br><span class="line">    <span class="keyword">return</span> l;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">QuickSort</span><span class="params">(<span class="keyword">int</span> arr[],<span class="keyword">int</span> l,<span class="keyword">int</span> r)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(arr==<span class="literal">NULL</span>||l&gt;=r)<span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">int</span> pintle;</span><br><span class="line">    pintle = SeekPintle(arr,l,r);</span><br><span class="line">    QuickSort(arr,l,pintle<span class="number">-1</span>);</span><br><span class="line">    QuickSort(arr,pintle+<span class="number">1</span>,r);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、区间分割法"><a href="#2、区间分割法" class="headerlink" title="2、区间分割法"></a>2、区间分割法</h2><p>挖坑填补法的时间复杂度虽然为O(n),但是因为有循环嵌套的存在，从汇编的角度来说，执行效率并不高。区间分割法可以避免这个弊端。</p>
+<h3 id="思路：-1"><a href="#思路：-1" class="headerlink" title="思路："></a>思路：</h3><p>区间分割法是将序列划分为两个区间。前区间比标准值小，后区间比标准值大。这里，我们需要两个变量S,i，S用来作为区间的界限，i用来遍历序列。由于最开始，S ,i 位于序列最开始的位置，所以<strong>选的标准值是序列的最后一个数。</strong>序列i位置的值与标准值相比，若比标准值小，S的下一位置的值与i位置的值进行交换(如果i-S==1，S的下一位置即为i)，S扩张+1，i++。；若是比标准值大，i++；直至遇到标准值(意味着遍历结束)。最后，标准值与S的下一位置的值进行交换。</p>
+<h3 id="代码：-1"><a href="#代码：-1" class="headerlink" title="代码："></a>代码：</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">SeekPintle</span><span class="params">(<span class="keyword">int</span> arr[],<span class="keyword">int</span> l,<span class="keyword">int</span> r)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;<span class="comment">//遍历</span></span><br><span class="line">    <span class="keyword">int</span> s=l<span class="number">-1</span>;<span class="comment">//区间的界限</span></span><br><span class="line">    <span class="keyword">int</span> temp;</span><br><span class="line">    <span class="keyword">for</span>(i=l;i&lt;r;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(arr[i]&lt;arr[r])</span><br><span class="line">        &#123;</span><br><span class="line">            temp = arr[s+<span class="number">1</span>];</span><br><span class="line">            arr[s+<span class="number">1</span>] = arr[i];</span><br><span class="line">            arr[i]=temp;</span><br><span class="line">            s++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    temp = arr[s+<span class="number">1</span>];</span><br><span class="line">    arr[s+<span class="number">1</span>] = arr[i];</span><br><span class="line">    arr[i]=temp;</span><br><span class="line">    s++;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">QuickSort</span><span class="params">(<span class="keyword">int</span> arr[],<span class="keyword">int</span> l,<span class="keyword">int</span> r)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(arr==<span class="literal">NULL</span>||l&gt;=r)<span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">int</span> pintle;</span><br><span class="line">    pintle = SeekPintle(arr,l,r);</span><br><span class="line">    QuickSort(arr,l,pintle<span class="number">-1</span>);</span><br><span class="line">    QuickSort(arr,pintle+<span class="number">1</span>,r);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="快排优化"><a href="#快排优化" class="headerlink" title="快排优化"></a>快排优化</h1><h2 id="1、标准值的选取"><a href="#1、标准值的选取" class="headerlink" title="1、标准值的选取"></a>1、标准值的选取</h2><pre><code>1. 随机选取3个值，选取中间值为标准值。（弊端：如果出现两个值相同，那么选取3个值就没有价值了）
+2. 选取第一个，中间的，最后的，选择中间值为标准值。（弊端，同1）
+3. 九选一（降低小概率事件）
+4. 重复出现比较多，可以把和标准值相同的值集中在标准值左右</code></pre>
+<h2 id="2、结合其他排序"><a href="#2、结合其他排序" class="headerlink" title="2、结合其他排序"></a>2、结合其他排序</h2><pre><code>分割到元素较少时，选择插入排序。可以减少空间和时间消耗。</code></pre>
+<h2 id="3、系统异常"><a href="#3、系统异常" class="headerlink" title="3、系统异常"></a>3、系统异常</h2><pre><code>快速排序是用递归来实现的，如果递归的层数太多，可能会引起系统崩溃。用循环加栈来实现。（一般用不着）</code></pre>
+<h2 id="4、尾递归"><a href="#4、尾递归" class="headerlink" title="4、尾递归"></a>4、尾递归</h2></article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="https://xi-sun.github.io">夕大人</a></p><p> <span>Link:  </span><a href="https://xi-sun.github.io/blog/ff8068c0.html">https://xi-sun.github.io/blog/ff8068c0.html</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="prevSlogan" href="/blog/6441a1ac.html" title="Makefile"><span>< PreviousPost</span><br><span class="prevTitle">Makefile</span></a><a class="nextSlogan" href="/blog/xi07.html" title="BST"><span>NextPost ></span><br><span class="nextTitle">BST</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%AB%E6%8E%92%E6%80%9D%E6%83%B3"><span class="toc-number">1.</span> <span class="toc-text">快排思想</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%8C%96%E5%9D%91%E5%A1%AB%E8%A1%A5%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">1、挖坑填补法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF%EF%BC%9A"><span class="toc-number">1.1.1.</span> <span class="toc-text">思路：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="toc-number">1.1.2.</span> <span class="toc-text">代码：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%8C%BA%E9%97%B4%E5%88%86%E5%89%B2%E6%B3%95"><span class="toc-number">1.2.</span> <span class="toc-text">2、区间分割法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF%EF%BC%9A-1"><span class="toc-number">1.2.1.</span> <span class="toc-text">思路：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%EF%BC%9A-1"><span class="toc-number">1.2.2.</span> <span class="toc-text">代码：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%AB%E6%8E%92%E4%BC%98%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">快排优化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%A0%87%E5%87%86%E5%80%BC%E7%9A%84%E9%80%89%E5%8F%96"><span class="toc-number">2.1.</span> <span class="toc-text">1、标准值的选取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%BB%93%E5%90%88%E5%85%B6%E4%BB%96%E6%8E%92%E5%BA%8F"><span class="toc-number">2.2.</span> <span class="toc-text">2、结合其他排序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%B3%BB%E7%BB%9F%E5%BC%82%E5%B8%B8"><span class="toc-number">2.3.</span> <span class="toc-text">3、系统异常</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E5%B0%BE%E9%80%92%E5%BD%92"><span class="toc-number">2.4.</span> <span class="toc-text">4、尾递归</span></a></li></ol></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>

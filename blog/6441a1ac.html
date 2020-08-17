@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="夕大人"><meta name="renderer" content="webkit"><meta name="copyright" content="夕大人"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Makefile · Mr.Xi's Blog</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/fav.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.0.0"></head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/head.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">夕大人</div><div class="profile-signature">有术无道，止于术。</div><div class="friends"><div>FRIENDS</div><span><a href="//github.com/xi-sun" target="_black">friendA</a></span><span><a href="http://123.57.156.148/" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">Mr.Xi's Blog</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">Makefile</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-edit"></i><span>2020-08-16</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="脚本语言-学习"> 脚本语言-学习</a></span></div><div class="post-intro-read"><span> Word count: <span class="post-count">1.2k</span> | Reading time: <span class="post-count">4</span>min</span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1 id="Makefile-介绍"><a href="#Makefile-介绍" class="headerlink" title="Makefile 介绍"></a>Makefile 介绍</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>任何的项目开发都需要项目管理工具，Makefile就是一个项目管理的一种脚本语言。可以通过编写一个Makefile脚本帮助使用者管理编译代码。</p>
+<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ol>
+<li>编译管理工程源码</li>
+<li>节省项目编译时间</li>
+<li>重用性强(一次编写，终身受益)<h1 id="项目编译过程"><a href="#项目编译过程" class="headerlink" title="项目编译过程"></a>项目编译过程</h1>Makefile是项目管理的一种脚本语言，学习Makefile的话，了解项目编译的过程是有必要的。<br>每个项目最终都要生成可执行文件，可执行文件是由多个核心二进制文件链接而成。每个核心二进制文件是由相应的源码文件生成。</li>
+</ol>
+<img src="/blog/undefined/%E9%A1%B9%E7%9B%AE%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B.jpg" class title="项目编译过程">
+
+<h1 id="Makefile-知识点"><a href="#Makefile-知识点" class="headerlink" title="Makefile 知识点"></a>Makefile 知识点</h1><ol>
+<li><p>Makefile文件命名规范：首字母允许大小 其余均为小写 （Makefile 或 makefile）</p>
+</li>
+<li><p>执行命令：make （自动检索当前目录下的makefile而后执行）</p>
+</li>
+<li><p>makefile三要素：目标：依赖</p>
+<pre><code>                                                     命令&lt;br&gt;例如：一个项目包括存放源码文件的src文件夹，存放头文件的include文件夹，存放库文件的lib文件夹，src文件夹下包含main.c aaa.c bbb.c ddd.c,include文件夹包含 aaa.h bbb.h ccc.h</code></pre>
+</li>
+</ol>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#目标：依赖</span></span><br><span class="line"><span class="comment">#     命令</span></span><br><span class="line"><span class="section">app:aaa.c bbb.c ddd.c main.c</span></span><br><span class="line">    gcc *.c -I../<span class="keyword">include</span> -o app</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><p>Makefile功能目标：Makefile管理编译代码，除了生成可执行文件外，还要有一些其他功能来管理编译代码，例如删除临时文件、安装、卸载等等</p>
+<ol>
+<li><p>功能目标没有依赖</p>
+</li>
+<li><p>每个功能目标完成独立任务</p>
+</li>
+<li><p>使用：make 功能名<br>例如：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">#常用的功能目标</span></span><br><span class="line">22     clean:</span><br><span class="line">23        rm *.o app -rf</span><br><span class="line">24 </span><br><span class="line">25     install:</span><br><span class="line">26        sudo mv app /usr/bin/</span><br><span class="line">27 </span><br><span class="line">28     distclean:</span><br><span class="line">29        sudo rm /usr/bin/app -rf</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>Makefile变量的定义与使用：</p>
+<ol>
+<li><p>大多数情况下makefile变量都是大写命名的；</p>
+</li>
+<li><p>没有复杂的类型，统一存储字符串；例如：VAR=1000，这里的1000不是数字，而是字符串，要是用变量</p>
+</li>
+<li><p>使用变量要加变量名前加上$(取值操作)</p>
+</li>
+<li><p>特殊变量：$@ = 表示当前目标的目标名</p>
+<p>​                    $^ = 表示当前目标的所有依赖</p>
+<p>​                    $&lt; = 表示当前目标的第一个依赖 </p>
+</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:aaa.c bbb.c ddd.c main.c</span></span><br><span class="line">    gcc aaa.c bbb.c ddd.c -I../<span class="keyword">include</span> -o app</span><br><span class="line"><span class="comment">#等效于</span></span><br><span class="line"><span class="section">app:aaa.c bbb.c ddd.c main.c</span></span><br><span class="line">    gcc <span class="variable">$^</span> -I../<span class="keyword">include</span> -o <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
+<ol start="6">
+<li><p>Makefile运行原理：自顶向下建立依赖，自低向上执行命令</p>
+</li>
+<li><p>Makefile目标执行：默认情况下make只会执行第一个目标(多个目标有很强的依赖关系，也理解为一个目标)</p>
+</li>
+<li><p>函数：Makefile提供了获取文件名函数(wildcard)和字符串替换函数(patsubst)</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SRCFILE=<span class="variable">$(<span class="built_in">wildcard</span> *.c)</span></span><br><span class="line">DESFILE=<span class="variable">$(<span class="built_in">patsubst</span> %.c,%.o,<span class="variable">$(SRCFILE)</span>)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>伪目标：避免目标与文件之间的冲突，发生冲突可能会使功能目标失效。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在功能目标前加.PHOND 功能名... 建立伪目标</span></span><br><span class="line">.PHOND clean install distclean</span><br></pre></td></tr></table></figure>
+<h1 id="Makefile-编写"><a href="#Makefile-编写" class="headerlink" title="Makefile 编写"></a>Makefile 编写</h1><p>在Makefile的三要素中写了有最简单的makefile:</p>
+</li>
+</ol>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:aaa.c bbb.c ddd.c main.c</span></span><br><span class="line">    gcc *.c -I../<span class="keyword">include</span> -o app</span><br></pre></td></tr></table></figure>
+<p>这段makefile脚本代码仅仅能实现上述的Makefile的第一个作用：管理编译代码，并不能实现其他两个作用。<br>实现节省项目的编译时间的方法：(空间换时间)将所有编译生成的二进制文件保存，检测文件改动，对改动的源码文件重新生成二进制文件，与旧的二进制文件链接成新的可执行文件。如果要这样实现，核心二进制文件要单独生成。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:aaa.o bbb.o ccc.o main.o</span></span><br><span class="line">    gcc aaa.o bbb.o ddd.o main.o -I../<span class="keyword">include</span> -o app</span><br><span class="line">    </span><br><span class="line"><span class="section">aaa.o:aaa.c</span></span><br><span class="line">    gcc -I../<span class="keyword">include</span> -c aaa.c</span><br><span class="line"><span class="section">bbb.o:bbb.c</span></span><br><span class="line">    gcc -I../<span class="keyword">include</span> -c bbb.c</span><br><span class="line"><span class="section">hhh.o:ddd.c</span></span><br><span class="line">    gcc -I../<span class="keyword">include</span> -c ddd.c</span><br><span class="line"><span class="section">main.o:main.c</span></span><br><span class="line">    gcc -I../<span class="keyword">include</span> -c main.c</span><br></pre></td></tr></table></figure>
+
+<p>这样的Makefile文件就能实现节省项目的编译时间。如果还要增加重用性，还是不够的，因为每个项目的源码文件命名都不会完全相同。要实现重用性，就需要变量和内建语法。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">CC=gcc</span><br><span class="line">INCLUDE=../<span class="keyword">include</span></span><br><span class="line">CFLAGS=-c -I<span class="variable">$(INCLUDE)</span> -g -Wall</span><br><span class="line">CPPFLAGS=-E -D -O1</span><br><span class="line">LDFLAGS=-L../lib -lpthread</span><br><span class="line">INSTALLPATH=/usr/bin</span><br><span class="line">TARGRT=app</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">RM=sudo rm -rf</span><br><span class="line"><span class="comment">#函数</span></span><br><span class="line"><span class="comment">#获取文件名函数 字符串替换函数</span></span><br><span class="line">SRCFILE=<span class="variable">$(<span class="built_in">wildcard</span> *.c)</span></span><br><span class="line">DESFILE=<span class="variable">$(<span class="built_in">patsubst</span> %.c,%.o,<span class="variable">$(SRCFILE)</span>)</span></span><br><span class="line"><span class="variable">$(TARGRT)</span>:<span class="variable">$(DESFILE)</span></span><br><span class="line">    <span class="variable">$(CC)</span> <span class="variable">$^</span> -o <span class="variable">$@</span></span><br><span class="line"><span class="section">%.o:%.c  #%是makefile中的通配符</span></span><br><span class="line">    <span class="variable">$(CC)</span> <span class="variable">$(CFLAGS)</span> <span class="variable">$&lt;</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">   <span class="variable">$(RM)</span> <span class="variable">$(DESFILE)</span> <span class="variable">$(TARGRT)</span></span><br><span class="line">   </span><br><span class="line"><span class="section">install:</span></span><br><span class="line">   <span class="variable">$(CP)</span> <span class="variable">$(TARGRT)</span> <span class="variable">$(INSTALLPATH)</span></span><br><span class="line">    </span><br><span class="line"><span class="section">distclean:</span></span><br><span class="line">   <span class="variable">$(RM)</span> <span class="variable">$(INSTALLPATH)</span><span class="variable">$(TARGRT)</span></span><br></pre></td></tr></table></figure>
+<p>现在的makefie文件就符合makefile的三个作用了。</p>
+<p>如果会有多个src文件夹，就需要一个makefile来管理这些源码的makefile,语法与原来相同</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#主目标</span></span><br><span class="line"><span class="section">msrc:src</span></span><br><span class="line">    make -c ./src</span><br><span class="line"><span class="comment">#功能目标</span></span><br><span class="line"><span class="section">csrc:</span></span><br><span class="line">    make clean -c ./src</span><br></pre></td></tr></table></figure>
+
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="https://xi-sun.github.io">夕大人</a></p><p> <span>Link:  </span><a href="https://xi-sun.github.io/blog/6441a1ac.html">https://xi-sun.github.io/blog/6441a1ac.html</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="prevSlogan" href="/blog/398e1cfc.html" title="GDB调试"><span>< PreviousPost</span><br><span class="prevTitle">GDB调试</span></a><a class="nextSlogan" href="/blog/ff8068c0.html" title="快速排序"><span>NextPost ></span><br><span class="nextTitle">快速排序</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Makefile-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">Makefile 介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%9C%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">作用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">项目编译过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Makefile-%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">Makefile 知识点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Makefile-%E7%BC%96%E5%86%99"><span class="toc-number">4.</span> <span class="toc-text">Makefile 编写</span></a></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
